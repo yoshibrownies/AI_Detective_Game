@@ -91,13 +91,13 @@
   margin: 0;
 }
 
-button {
+:global(button) {
   padding: 8px 14px;
   border-radius: 6px;
   cursor: pointer;
 }
 
-button:disabled {
+:global(button):disabled {
   opacity: 0.5;
   cursor: default;
 }
