@@ -125,7 +125,7 @@ export default function Home() {
         body: JSON.stringify({ suspect: accuseId }),
       });
       const data = await res.json();
-      setVerdict(data.message);
+      setVerdict(data.message ?? data.error);
     } catch (err) {
       setVerdict(String(err));
     }
