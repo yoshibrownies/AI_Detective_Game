@@ -74,7 +74,8 @@
   padding: 12px;
   border: 1px solid #ccc;
   border-radius: 8px;
-  background: #fff;
+  background: var(--background);
+  color: var(--foreground);
   cursor: pointer;
   text-align: left;
 }
