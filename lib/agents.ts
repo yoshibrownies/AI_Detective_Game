@@ -1,8 +1,12 @@
 import { createAgent } from "langchain";
+import { ChatOpenAI } from "@langchain/openai";
 import { makeSearchTool } from "./tools";
 import { ASSISTANT_PROMPT, suspectPrompt } from "./prompts";
 
-const MODEL = "openai:gpt-5.4-mini"; // any chat model your key supports
+// Pass a model instance, not a "provider:model" string. The string form makes
+// LangChain load the provider with a dynamic import that the Next.js bundler
+// cannot resolve ("Cannot find module as expression is too dynamic").
+const MODEL = new ChatOpenAI({ model: "gpt-5.4-mini" }); // any chat model your key supports
 
 export const assistant = createAgent({
   model: MODEL,
