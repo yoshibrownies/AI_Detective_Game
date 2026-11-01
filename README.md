@@ -43,11 +43,14 @@ A detective game built with Next.js (App Router), TypeScript and LangChain.js. T
 - `npm run build` passes.
 - `npx tsc --noEmit` passes.
 - `node scripts/check-filter.mjs` passes. It shows that each viewer sees exactly the documents they are allowed to see, and that Dani cannot retrieve Maya's private file (X4).
-- **Not tested:** the live chat and suspect replies. There was no OpenAI key in this environment, so the model calls were not run. The model name `openai:gpt-5.4-mini` comes from the assignment brief and was not checked against the API.
+- The full agent loop was tested against a local mock of the OpenAI API (`OPENAI_BASE_URL` pointed at it). Every agent called `search_files` and got back only its own documents: the assistant got no private files, and Dani got B1, S1 and X1 but never X4. The routes returned the model's final answer, and the UI kept a separate history for each suspect. Accusing Maya returned the correct verdict.
+- **Not tested with the real OpenAI API:** this environment had no key, so the quality of the real replies was not checked (whether suspects stay in character and follow their REVEAL rules). The model name `gpt-5.4-mini` comes from the assignment brief.
 
 ## Something that did not work as expected
 
-The production build failed on `app/page.module.css` with "Selector "button" is not pure." CSS Modules only accept local class names, so the bare `button` rules were rejected. I wrapped those selectors in `:global(...)`, so they apply to every button on the page. The build then passed.
+The starter code passes the model as a string (`"openai:gpt-5.4-mini"`). Inside Next.js every agent call failed with "Cannot find module as expression is too dynamic". With a string, LangChain loads `@langchain/openai` through a dynamic import, and the Next.js bundler cannot follow it. I changed `lib/agents.ts` to pass a `new ChatOpenAI({ model: "gpt-5.4-mini" })` instance instead, and the agents started working. The routes now also return a JSON error instead of an empty 500, so the chat shows a readable message when something goes wrong.
+
+The production build also failed on `app/page.module.css` with "Selector "button" is not pure." CSS Modules only accept local class names, so the bare `button` rules were rejected. I wrapped those selectors in `:global(...)`, so they apply to every button on the page. The build then passed.
 
 ## Project layout
 
