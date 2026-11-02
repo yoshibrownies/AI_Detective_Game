@@ -1,6 +1,9 @@
 "use client";
 
 import { useState } from "react";
+import * as adventurer from "@dicebear/adventurer";
+import { createAvatar } from "@dicebear/core";
+import Image from "next/image";
 import styles from "./page.module.css";
 
 type Role = "user" | "assistant";
@@ -13,6 +16,45 @@ const SUSPECTS: { id: SuspectId; name: string; blurb: string }[] = [
   { id: "yossi", name: "Yossi Ben-David", blurb: "Night guard" },
   { id: "maya", name: "Maya Katz", blurb: "Food influencer" },
 ];
+
+function SuspectPortrait({ id, talking = false }: { id: SuspectId; talking?: boolean }) {
+  const colors = {
+    dani: { background: "#f0d7b2", hair: "#34251f", skin: "#c9845f" },
+    noa: { background: "#d9e8d5", hair: "#352723", skin: "#d99b76" },
+    yossi: { background: "#d7e3ed", hair: "#77736e", skin: "#c98f70" },
+    maya: { background: "#efd9dd", hair: "#4b2b29", skin: "#e1a27f" },
+  }[id];
+  const createPortrait = (mouth: "variant28" | "variant29") => createAvatar(adventurer, {
+    seed: id,
+    size: 112,
+    radius: 22,
+    backgroundColor: [colors.background.slice(1)],
+    hairColor: [colors.hair.slice(1)],
+    skinColor: [colors.skin.slice(1)],
+    mouth: [mouth],
+  });
+
+  return (
+    <span className={`${styles.portrait} ${talking ? styles.talking : ""}`} aria-hidden="true">
+      <Image
+        className={styles.portraitFace}
+        src={createPortrait("variant29").toDataUri()}
+        width={112}
+        height={112}
+        alt=""
+        unoptimized
+      />
+      <Image
+        className={`${styles.portraitFace} ${styles.portraitSpeaking}`}
+        src={createPortrait("variant28").toDataUri()}
+        width={112}
+        height={112}
+        alt=""
+        unoptimized
+      />
+    </span>
+  );
+}
 
 async function ask(url: string, body: object): Promise<string> {
   const res = await fetch(url, {
@@ -29,11 +71,13 @@ function Chat({
   title,
   messages,
   busy,
+  busyLabel = "Thinking...",
   onSend,
 }: {
   title: string;
   messages: Msg[];
   busy: boolean;
+  busyLabel?: string;
   onSend: (text: string) => void;
 }) {
   const [draft, setDraft] = useState("");
@@ -55,7 +99,7 @@ function Chat({
             <strong>{m.role === "user" ? "You" : "Reply"}:</strong> {m.content}
           </p>
         ))}
-        {busy && <p className={styles.muted}>Thinking...</p>}
+        {busy && <p className={styles.muted} aria-live="polite" aria-atomic="true">{busyLabel}</p>}
       </div>
       <div className={styles.inputRow}>
         <input
@@ -154,11 +198,15 @@ export default function Home() {
             {SUSPECTS.map((s) => (
               <button
                 key={s.id}
-                className={styles.card}
+                className={`${styles.card} ${openSuspect === s.id ? styles.selected : ""}`}
                 onClick={() => setOpenSuspect(s.id)}
+                aria-pressed={openSuspect === s.id}
               >
-                <strong>{s.name}</strong>
-                <span className={styles.muted}>{s.blurb}</span>
+                <SuspectPortrait id={s.id} talking={busySuspect === s.id} />
+                <span className={styles.cardText}>
+                  <strong>{s.name}</strong>
+                  <span className={styles.muted}>{s.blurb}</span>
+                </span>
               </button>
             ))}
           </div>
@@ -168,6 +216,7 @@ export default function Home() {
               title={`Interrogating ${active.name}`}
               messages={chats[active.id]}
               busy={busySuspect === active.id}
+              busyLabel={`${active.name} is replying...`}
               onSend={(text) => sendSuspect(active.id, text)}
             />
           )}

@@ -38,6 +38,10 @@ A detective game built with Next.js (App Router), TypeScript and LangChain.js. T
 - **Level 2 (Interrogation Room): done.** Four suspect agents (`dani`, `noa`, `yossi`, `maya`) use the same tool factory with their own viewer. Each has a system prompt with personality and rules. The UI shows four suspect cards, and each suspect keeps a separate chat history in the browser.
 - **Level 3 (bonus): not done.**
 
+## Illustration attribution
+
+Suspect portraits are generated locally with [DiceBear Adventurer](https://www.dicebear.com/styles/adventurer/), based on artwork by [Lisa Wischofsky](https://www.instagram.com/lischi_art/) ([CC BY 4.0](https://creativecommons.org/licenses/by/4.0/)).
+
 ## Verification
 
 - `npm run build` passes.
